@@ -9,6 +9,7 @@ class PostSerializer(serializers.ModelSerializer):
         fields = ('id', 'text', 'author', 'image', 'pub_date')
         read_only_fields = ('author',)
         model = Post
+    
 
 class CommentSerializer(serializers.ModelSerializer):
     id = serializers.IntegerField(read_only=True)
