@@ -1,17 +1,16 @@
 from django.urls import path, include
-from .views import PostViewSet, APICommentView, APICommentDetailView
+from .views import PostViewSet, CommentViewSet
 
 from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register('v1/posts', PostViewSet, basename="posts")
+router.register('posts', PostViewSet, basename="posts")
+router.register(r'posts/(?P<post_id>\d+)/comments',
+                CommentViewSet, basename="comments")
 
 
 urlpatterns = [
-    path('v1/posts/<int:post_id>/comments/', APICommentView.as_view()),
-    path('v1/posts/<int:post_id>/comments/<int:comment_id>/',
-         APICommentDetailView.as_view()),
     path('', include(router.urls)),
-    path('v1/api-token-auth/', views.obtain_auth_token),
+    path('api-token-auth/', views.obtain_auth_token),
 ]

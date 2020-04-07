@@ -26,40 +26,19 @@ class PostViewSet(viewsets.ModelViewSet):
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 
-class APICommentView(APIView):
-    def get(self, request, post_id):
-        comments = Comment.objects.filter(post=post_id)
-        serializer = CommentSerializer(comments, many=True)
-        return Response(serializer.data)
+class CommentViewSet(viewsets.ModelViewSet):
+    serializer_class = CommentSerializer
+    model = Comment
+    permission_classes = (IsOwnerOrReadOnly, IsAuthenticated)
 
-    def post(self, request, post_id):
+    def get_queryset(self):
+        post = get_object_or_404(Post, pk=self.kwargs.get("post_id"))
+        return Comment.objects.filter(post=post)
+
+    def create(self, request, post_id):
         post = get_object_or_404(Post, id=post_id)
         serializer = CommentSerializer(data=request.data)
         if serializer.is_valid():
             serializer.save(author=self.request.user, post=post)
             return Response(serializer.data, status=status.HTTP_201_CREATED)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-
-class APICommentDetailView(APIView):
-    def get(self, request, post_id, comment_id):
-        comment = get_object_or_404(Comment, post=post_id, id=comment_id)
-        serializer = CommentSerializer(comment)
-        return Response(serializer.data)
-
-    def patch(self, request, post_id, comment_id):
-        comment = get_object_or_404(Comment, post=post_id, id=comment_id)
-        if comment.author != request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        serializer = PostSerializer(comment, data=request.data, partial=True)
-        if serializer.is_valid():
-            serializer.save()
-            return Response(serializer.data, status=status.HTTP_200_OK)
-        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
-
-    def delete(self, request, post_id, comment_id):
-        comment = get_object_or_404(Comment, post=post_id, id=comment_id)
-        if comment.author != request.user:
-            return Response(status=status.HTTP_403_FORBIDDEN)
-        comment.delete()
-        return Response(status=status.HTTP_204_NO_CONTENT)
