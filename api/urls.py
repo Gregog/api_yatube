@@ -5,10 +5,9 @@ from rest_framework.authtoken import views
 from rest_framework.routers import DefaultRouter
 
 router = DefaultRouter()
-router.register('posts', PostViewSet, basename="posts")
+router.register('posts', PostViewSet, basename='posts')
 router.register(r'posts/(?P<post_id>\d+)/comments',
-                CommentViewSet, basename="comments")
-
+                CommentViewSet, basename='comments')
 
 urlpatterns = [
     path('', include(router.urls)),
